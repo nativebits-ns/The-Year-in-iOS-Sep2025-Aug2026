@@ -3,56 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Year in iOS timeline</title>
+<title>The Year in iOS — Developer Timeline</title>
+
 <style>
   :root {
     --ink: #21252b;
     --sub: #5b6470;
-    --teal: #0F6E56; --teal-bg: #E1F5EE;
-    --coral: #993C1D; --coral-bg: #FAECE7;
-    --purple: #534AB7; --purple-bg: #EEEDFE;
-    --amber: #854F0B; --amber-bg: #FAEEDA;
+    --teal: #0F6E56;
+    --coral: #993C1D;
+    --purple: #534AB7;
+    --amber: #854F0B;
+    --line: #f2924a;
   }
-  * { box-sizing: border-box; }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
   body {
     margin: 0;
-    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
-    background: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: #fff;
     color: var(--ink);
     padding: 20px 20px 60px;
+    overflow-x: hidden;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .wrap {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
   .kicker {
     display: inline-block;
     background: #2f8fd1;
     color: #fff;
     font-weight: 700;
     font-size: 13px;
-    letter-spacing: 0.06em;
+    letter-spacing: .06em;
     padding: 6px 14px;
     border-radius: 4px;
     margin: 4px 0 6px;
   }
-  h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 4px; }
-  @media (min-width: 768px) {
-    h1 { font-size: 40px; }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin: 0 0 4px;
   }
-  .subtitle { font-size: 14px; color: var(--sub); margin: 0 0 20px; max-width: 640px; }
-  
-  /* Desktop Interactive Canvas */
-  .stage { position: relative; width: 100%; display: none; }
+
   @media (min-width: 768px) {
-    .stage { display: block; }
+    h1 {
+      font-size: 40px;
+    }
   }
-  .stage svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--sub);
+    margin: 0 0 16px;
+    max-width: 700px;
+    line-height: 1.45;
+  }
+
+  /* ---------------- FILTERS ---------------- */
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .filter-btn {
+    border: 1px solid #d0d7de;
+    background: #fff;
+    color: var(--sub);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+
+  .filter-btn:hover {
+    background: #f3f4f6;
+    color: var(--ink);
+  }
+
+  .filter-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  /* ---------------- DESKTOP ROADMAP ---------------- */
+
+  .stage {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    display: none;
+    overflow: visible;
+  }
+
+  @media (min-width: 768px) {
+    .stage {
+      display: block;
+    }
+  }
+
+  .stage svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* ---------------- LABELS ---------------- */
 
   .stop-label {
     position: absolute;
     cursor: pointer;
-    z-index: 2;
+    z-index: 100;
+    transition: opacity .3s ease;
   }
+
+  .stop-label:hover,
+  .stop-label.active {
+    z-index: 10000;
+  }
+
   .stop-badge {
-    background: #ffffff;
+    background: #fff;
     border: 1.5px solid var(--stop-color, #21252b);
     border-radius: 14px;
     padding: 6px 14px;
@@ -60,10 +151,28 @@
     font-weight: 700;
     white-space: nowrap;
     color: var(--stop-title-color, #21252b);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
     transition: transform .15s ease, box-shadow .15s ease;
     text-align: center;
   }
+
+  .stop-label.major-event .stop-badge {
+    background: var(--stop-color, #21252b);
+    color: #fff !important;
+    border-width: 2px;
+    box-shadow: 0 5px 18px rgba(0,0,0,.24);
+  }
+
+  .stop-label.major-event .stop-badge .badge-date {
+    color: #fff !important;
+    opacity: .9;
+  }
+
+  .stop-label.semi-major .stop-badge {
+    border-width: 2px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.10);
+  }
+
   .stop-badge .badge-date {
     display: block;
     font-size: var(--date-font-size, 10px);
@@ -71,67 +180,154 @@
     color: var(--stop-color, #21252b);
     margin-bottom: 1px;
   }
-  .stop-badge .badge-title { display: block; }
+
+  .stop-badge .badge-title {
+    display: block;
+  }
+
   .stop-label:hover .stop-badge,
   .stop-label.active .stop-badge {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    box-shadow: 0 7px 18px rgba(0,0,0,.14);
   }
-  .stop-label.dim .stop-badge { opacity: 0.35; }
+
+  .stop-label.dim {
+    opacity: .22;
+    pointer-events: none;
+  }
+
+  /* ---------------- DETAIL POPUP ---------------- */
 
   .detail-panel {
     position: absolute;
-    width: 250px;
-    background: #ffffff;
+    width: 280px;
+    max-width: min(280px, calc(100vw - 32px));
+    max-height: min(310px, 42vh);
+    overflow-y: auto;
+    background: #fff;
     border-radius: 12px;
     border: 1px solid #e6e4db;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    box-shadow: 0 12px 32px rgba(0,0,0,.14);
     padding: 14px 16px;
-    z-index: 20;
+    z-index: 10001;
     opacity: 0;
     visibility: hidden;
-    transition: opacity .16s ease, transform .16s ease, visibility 0s linear .16s;
     pointer-events: none;
+    margin: 0 !important;
+    transition: opacity .16s ease, visibility 0s linear .16s;
   }
+
   .stop-label:hover .detail-panel,
   .stop-label.active .detail-panel {
     opacity: 1;
     visibility: visible;
-    transition: opacity .16s ease, transform .16s ease;
     pointer-events: auto;
+    transition: opacity .16s ease;
   }
-  .detail-panel .date { font-size: 11px; font-weight: 700; margin: 0 0 4px; color: var(--stop-color, #21252b); }
-  .detail-panel .title { font-size: 14px; font-weight: 700; margin: 0 0 6px; color: var(--stop-title-color, #21252b); line-height: 1.3; }
-  .detail-panel .body { font-size: 12.5px; line-height: 1.5; color: var(--sub); margin: 0; }
+
+  .detail-panel .date {
+    font-size: 11px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--stop-color, #21252b);
+  }
+
+  .detail-panel .title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: var(--stop-title-color, #21252b);
+    line-height: 1.3;
+  }
+
+  .detail-panel .body {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--sub);
+    margin: 0;
+  }
+
+  .detail-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    color: var(--stop-color, #0F6E56);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .detail-link:hover {
+    text-decoration: underline;
+  }
+
   .detail-panel .arrow {
     position: absolute;
-    left: 50%;
-    width: 12px; height: 12px;
-    background: #ffffff;
+    width: 12px;
+    height: 12px;
+    background: #fff;
   }
 
-  .pin-halo { fill: none; stroke-width: 0; transition: stroke-width .2s ease, opacity .2s ease; opacity: 0; }
-  .pin-group.active .pin-halo { stroke-width: 10; opacity: 0.18; }
-  .pin-group.dim { opacity: 0.35; }
-  .pin-group { transition: opacity .25s ease; cursor: pointer; }
+  /* ---------------- PINS ---------------- */
 
-  /* Mobile Vertical View (< 768px) */
+  .pin-halo {
+    fill: none;
+    stroke-width: 0;
+    transition: stroke-width .2s ease, opacity .2s ease;
+    opacity: 0;
+  }
+
+  .pin-group {
+    transition: opacity .3s ease;
+    cursor: pointer;
+  }
+
+  .pin-group.active .pin-halo {
+    stroke-width: 10;
+    opacity: .18;
+  }
+
+  .pin-group.dim {
+    opacity: .22;
+    pointer-events: none;
+  }
+
+  /* ---------------- MOBILE ---------------- */
+
   .mobile-timeline {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     margin-top: 20px;
   }
+
   @media (min-width: 768px) {
-    .mobile-timeline { display: none; }
+    .mobile-timeline {
+      display: none;
+    }
   }
+
   .mobile-card {
     border-left: 4px solid var(--card-color);
     background: #f8fafc;
     border-radius: 0 8px 8px 0;
     padding: 14px 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    transition: opacity .3s ease;
   }
+
+  .mobile-card.semi-major {
+    background: #fff;
+    border-left-width: 5px;
+    box-shadow: 0 2px 9px rgba(0,0,0,.07);
+  }
+
+  .mobile-card.major-event {
+    background: #fff;
+    border-left-width: 7px;
+    box-shadow: 0 5px 15px rgba(0,0,0,.10);
+  }
+
   .mobile-card .date {
     font-size: 11px;
     font-weight: 700;
@@ -139,12 +335,14 @@
     text-transform: uppercase;
     margin-bottom: 2px;
   }
+
   .mobile-card .title {
     font-size: 15px;
     font-weight: 700;
     margin: 0 0 6px;
     color: var(--ink);
   }
+
   .mobile-card .body {
     font-size: 13px;
     line-height: 1.5;
@@ -152,71 +350,267 @@
     margin: 0;
   }
 
-  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; color: var(--sub); margin-top: 24px; }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .mobile-card a {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--card-color);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .mobile-card a:hover {
+    text-decoration: underline;
+  }
+
+  /* ---------------- LEGEND ---------------- */
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    color: var(--sub);
+    margin-top: 24px;
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ---------------- SMALL SCREENS ---------------- */
+
+  @media (max-width: 767px) {
+    body {
+      padding: 16px 14px 40px;
+    }
+
+    .filter-bar {
+      margin-bottom: 12px;
+    }
+
+    .filter-btn {
+      font-size: 12px;
+      padding: 6px 11px;
+    }
+
+    .subtitle {
+      margin-bottom: 12px;
+    }
+  }
 </style>
 </head>
-<body>
-<div class="wrap">
-  <span class="kicker">SEP 2025 &ndash; AUG 2026</span>
-  <h1>The Year in iOS</h1>
-  <p class="subtitle">Major SDK releases, App Store Connect deadlines, and platform shifts. Tap or hover stops for full detail.</p>
 
-  <!-- Desktop interactive S-Curve -->
+<body>
+
+<div class="wrap">
+
+  <span class="kicker">APR 2025 – AUG 2026</span>
+
+  <h1>The Year in iOS</h1>
+
+  <p class="subtitle">
+    The developer-focused year: SDK migrations, App Store requirements,
+    distribution changes, and major platform integrations.
+  </p>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCategory('all', this)">All Events</button>
+    <button class="filter-btn" onclick="filterCategory('sdk', this)">SDK & Releases</button>
+    <button class="filter-btn" onclick="filterCategory('deadline', this)">App Store Deadlines</button>
+    <button class="filter-btn" onclick="filterCategory('regulatory', this)">Distribution</button>
+    <button class="filter-btn" onclick="filterCategory('ai', this)">AI Platform</button>
+  </div>
+
   <div class="stage" id="stage"></div>
 
-  <!-- Mobile linear stack -->
   <div class="mobile-timeline" id="mobileTimeline"></div>
 
   <div class="legend">
-    <span><span class="dot" style="background:#0F6E56"></span>SDK / platform release</span>
-    <span><span class="dot" style="background:#993C1D"></span>Regulatory / distribution</span>
-    <span><span class="dot" style="background:#534AB7"></span>AI platform strategy</span>
-    <span><span class="dot" style="background:#854F0B"></span>Deadline / enforcement</span>
+    <span>
+      <span class="dot" style="background:#0F6E56"></span>
+      SDK / platform
+    </span>
+    <span>
+      <span class="dot" style="background:#993C1D"></span>
+      Distribution / regulation
+    </span>
+    <span>
+      <span class="dot" style="background:#534AB7"></span>
+      AI platform
+    </span>
+    <span>
+      <span class="dot" style="background:#854F0B"></span>
+      Deadline
+    </span>
   </div>
+
 </div>
 
 <script>
+
+/*
+ * ============================================================
+ * THE YEAR IN iOS — DEVELOPER MILESTONES
+ *
+ * Major: Reserved for platform shifts and key ecosystem updates (WWDC, Gemini deal).
+ * Semi-Major: Significant SDK changes, EU legal rulings, and critical mandatory deadlines.
+ * ============================================================
+ */
+
 const milestones = [
-  { date: "Sept 2025", title: "iOS 26 SDK released", body: "Liquid Glass design system ships across the OS. Xcode 26 arrives with an AI-assisted coding tool and Swift Testing improvements.", color: "teal", weight: 1.6 },
-  { date: "Apr 24, 2025 \u00b7 deadline", title: "iOS 18 SDK becomes mandatory", body: "Builds using older SDKs are rejected by App Store Connect from this date on. Xcode 16 or later required.", color: "amber", weight: 1.1 },
-  { date: "Nov 2025", title: "Alt. marketplaces expand", body: "DMA-style third-party app marketplace and web distribution rules extend to Japan and Brazil, beyond the EU.", color: "coral", weight: 1.2 },
-  { date: "Jan 12, 2026", title: "Apple + Google Gemini deal", body: "Apple Foundation Models get rebuilt on Gemini, laying groundwork for far more capable Siri app-intent APIs later in 2026.", color: "purple", weight: 1.7 },
-  { date: "Jan 31, 2026 \u00b7 deadline", title: "Age-rating system takes effect", body: "Developers must answer updated age-rating questions in App Store Connect for every app to avoid submission interruptions.", color: "amber", weight: 1.0 },
-  { date: "Apr 28, 2026 \u00b7 deadline", title: "iOS 26 SDK becomes mandatory", body: "Apps uploaded to App Store Connect must now be built with Xcode 26 and the iOS 26 or iPadOS 26 SDK.", color: "amber", weight: 1.3 },
-  { date: "Jun 8\u201312, 2026 \u00b7 WWDC", title: "iOS 27 SDK, Siri AI, Xcode 27", body: "New app-intent and on-screen context APIs, a SwiftUI Document API, and Xcode 27's SwiftUI-specialist coding tools. The biggest developer event of the window.", color: "teal", weight: 2.2 },
-  { date: "Jul 8, 2026", title: "EU court upholds DMA rules", body: "The EU General Court confirms App Store and iOS distribution obligations stand, rejecting all three of Apple's challenges.", color: "coral", weight: 1.3 },
-  { date: "Aug 18, 2026", title: "EU developer terms updated", body: "New eligibility rules for running an alternative marketplace or web distribution in the EU, effective October 1.", color: "coral", weight: 1.1 },
+  {
+    date: "Apr 24, 2025 · deadline",
+    title: "iOS 18 SDK becomes mandatory",
+    body: "Builds using older SDKs are rejected by App Store Connect from this date on. Xcode 16 or later required.",
+    color: "amber",
+    weight: 1.1,
+    major: false,
+    semiMajor: true,
+    category: "deadline",
+    link: "https://developer.apple.com/news/upcoming-requirements/"
+  },
+  {
+    date: "Sept 2025",
+    title: "iOS 26 SDK released",
+    body: "Liquid Glass design system ships across the OS. Xcode 26 arrives with an AI-assisted coding tool and Swift Testing improvements.",
+    color: "teal",
+    weight: 1.6,
+    major: false,
+    semiMajor: true,
+    category: "sdk",
+    link: "https://developer.apple.com/xcode/"
+  },
+  {
+    date: "Nov 2025",
+    title: "Alt. marketplaces expand",
+    body: "DMA-style third-party app marketplace and web distribution rules extend to Japan and Brazil, beyond the EU.",
+    color: "coral",
+    weight: 1.2,
+    major: false,
+    semiMajor: false,
+    category: "regulatory",
+    link: "https://developer.apple.com/support/alternative-app-distribution-eu/"
+  },
+  {
+    date: "Jan 12, 2026",
+    title: "Apple + Google Gemini deal",
+    body: "Apple Foundation Models get rebuilt on Gemini, laying groundwork for far more capable Siri app-intent APIs later in 2026.",
+    color: "purple",
+    weight: 1.7,
+    major: true,
+    semiMajor: false,
+    category: "ai",
+    link: "https://developer.apple.com/news/"
+  },
+  {
+    date: "Jan 31, 2026 · deadline",
+    title: "Age-rating system takes effect",
+    body: "Developers must answer updated age-rating questions in App Store Connect for every app to avoid submission interruptions.",
+    color: "amber",
+    weight: 1.0,
+    major: false,
+    semiMajor: false,
+    category: "deadline",
+    link: "https://developer.apple.com/news/upcoming-requirements/"
+  },
+  {
+    date: "Apr 28, 2026 · deadline",
+    title: "iOS 26 SDK becomes mandatory",
+    body: "Apps uploaded to App Store Connect must now be built with Xcode 26 and the iOS 26 or iPadOS 26 SDK.",
+    color: "amber",
+    weight: 1.3,
+    major: false,
+    semiMajor: true,
+    category: "deadline",
+    link: "https://developer.apple.com/news/upcoming-requirements/"
+  },
+  {
+    date: "Jun 8–12, 2026 · WWDC",
+    title: "iOS 27 SDK, Siri AI, Xcode 27",
+    body: "New app-intent and on-screen context APIs, a SwiftUI Document API, and Xcode 27's SwiftUI-specialist coding tools. The biggest developer event of the window.",
+    color: "teal",
+    weight: 2.2,
+    major: true,
+    semiMajor: false,
+    category: "sdk",
+    link: "https://developer.apple.com/wwdc/"
+  },
+  {
+    date: "Jul 8, 2026",
+    title: "EU court upholds DMA rules",
+    body: "The EU General Court confirms App Store and iOS distribution obligations stand, rejecting all three of Apple's challenges.",
+    color: "coral",
+    weight: 1.3,
+    major: false,
+    semiMajor: true,
+    category: "regulatory",
+    link: "https://developer.apple.com/support/alternative-app-distribution-eu/"
+  },
+  {
+    date: "Aug 18, 2026",
+    title: "EU developer terms updated",
+    body: "New eligibility rules for running an alternative marketplace or web distribution in the EU, effective October 1.",
+    color: "coral",
+    weight: 1.1,
+    major: false,
+    semiMajor: false,
+    category: "regulatory",
+    link: "https://developer.apple.com/support/alternative-app-distribution-eu/"
+  }
 ];
 
 const COLORS = {
-  teal:   { stroke: "#0F6E56", title: "#085041" },
-  coral:  { stroke: "#993C1D", title: "#712B13" },
+  teal: { stroke: "#0F6E56", title: "#085041" },
+  coral: { stroke: "#993C1D", title: "#712B13" },
   purple: { stroke: "#534AB7", title: "#3C3489" },
-  amber:  { stroke: "#854F0B", title: "#633806" },
+  amber: { stroke: "#854F0B", title: "#633806" }
 };
 
-// Render mobile cards
-const mobileContainer = document.getElementById('mobileTimeline');
-milestones.forEach(m => {
+/* ============================================================
+   MOBILE CARDS
+   ============================================================ */
+
+const mobileContainer = document.getElementById("mobileTimeline");
+
+milestones.forEach((m) => {
   const c = COLORS[m.color];
-  const card = document.createElement('div');
-  card.className = 'mobile-card';
-  card.style.setProperty('--card-color', c.stroke);
+  const card = document.createElement("div");
+
+  card.className = "mobile-card" +
+    (m.major ? " major-event" : "") +
+    (m.semiMajor ? " semi-major" : "");
+
+  card.style.setProperty("--card-color", c.stroke);
+
   card.innerHTML = `
     <div class="date">${m.date}</div>
     <div class="title">${m.title}</div>
     <div class="body">${m.body}</div>
+    ${m.link ? `<a href="${m.link}" target="_blank" rel="noopener noreferrer">Read Apple documentation ↗</a>` : ""}
   `;
+
   mobileContainer.appendChild(card);
 });
 
-// Desktop Layout Engine
-const W = 1100, n = milestones.length;
+/* ============================================================
+   DESKTOP ROADMAP
+   ============================================================ */
+
+const W = 1100;
+const n = milestones.length;
 const perRow = 3;
 const topPad = 60;
-const bandH = 220;
+const bandH = 230;
 const rows = Math.ceil(n / perRow);
 const totalH = bandH * rows + 100 + topPad;
 const pts = [];
@@ -227,129 +621,156 @@ for (let i = 0; i < n; i++) {
   const forward = rowIdx % 2 === 0;
   const t = forward ? posInRow / (perRow - 1) : 1 - posInRow / (perRow - 1);
   const x = 100 + t * (W - 200);
-  const yWiggle = (posInRow % 2 === 0) ? 0 : -70;
+  const yWiggle = posInRow % 2 === 0 ? 0 : -70;
   const y = topPad + 110 + rowIdx * bandH + yWiggle;
+
   pts.push({ x, y, posInRow });
 }
 
-function catmullRom2bezier(pts) {
-  let d = `M${pts[0].x},${pts[0].y} `;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i === 0 ? 0 : i - 1];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+/* ============================================================
+   CATMULL-ROM → BEZIER
+   ============================================================ */
+
+function catmullRom2bezier(points) {
+  let d = `M${points[0].x},${points[0].y} `;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i === 0 ? 0 : i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+
     const c1x = p1.x + (p2.x - p0.x) / 6;
     const c1y = p1.y + (p2.y - p0.y) / 6;
     const c2x = p2.x - (p3.x - p1.x) / 6;
     const c2y = p2.y - (p3.y - p1.y) / 6;
+
     d += `C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y} `;
   }
   return d;
 }
 
 const pathD = catmullRom2bezier(pts);
-const stage = document.getElementById('stage');
+const stage = document.getElementById("stage");
 const svgNS = "http://www.w3.org/2000/svg";
 let svgParts = [];
-svgParts.push(`<svg viewBox="0 0 ${W} ${totalH}" xmlns="${svgNS}">`);
-svgParts.push(`<path d="${pathD}" fill="none" stroke="#dfeaf3" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,6)"/>`);
-svgParts.push(`<path d="${pathD}" fill="none" stroke="#f2924a" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>`);
-svgParts.push(`<path d="${pathD}" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-dasharray="10 10" stroke-linecap="round"/>`);
+
+svgParts.push(`
+  <svg viewBox="0 0 ${W} ${totalH}" xmlns="${svgNS}" preserveAspectRatio="xMidYMid meet">
+`);
+
+svgParts.push(`
+  <path d="${pathD}" fill="none" stroke="#dfeaf3" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,6)" />
+  <path d="${pathD}" fill="none" stroke="#f2924a" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="${pathD}" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="10 10" stroke-linecap="round" />
+`);
 
 pts.forEach((p, i) => {
   const m = milestones[i];
   const c = COLORS[m.color];
-  const scale = m.weight || 1.0;
+  const scale = m.weight || 1;
   const pinW = 22 * scale;
   const pinH = 30 * scale;
   const holeR = 6.5 * scale;
-  
   const halfW = pinW / 2;
   const tipY = p.y;
   const headCy = tipY - pinH + halfW;
 
   const pinPath = `
     M ${p.x} ${tipY}
-    C ${p.x - halfW * 0.9} ${tipY - pinH * 0.55}, ${p.x - halfW} ${headCy + halfW * 0.5}, ${p.x - halfW} ${headCy}
+    C ${p.x - halfW * .9} ${tipY - pinH * .55}, ${p.x - halfW} ${headCy + halfW * .5}, ${p.x - halfW} ${headCy}
     A ${halfW} ${halfW} 0 1 1 ${p.x + halfW} ${headCy}
-    C ${p.x + halfW} ${headCy + halfW * 0.5}, ${p.x + halfW * 0.9} ${tipY - pinH * 0.55}, ${p.x} ${tipY}
+    C ${p.x + halfW} ${headCy + halfW * .5}, ${p.x + halfW * .9} ${tipY - pinH * .55}, ${p.x} ${tipY}
     Z
   `;
+
   const haloR = 20 * scale;
-  const zIdx = Math.round(scale * 10);
 
   svgParts.push(`
-    <g class="pin-group" id="pin-${i}" data-idx="${i}" style="z-index: ${zIdx}; position: relative;">
-      <circle class="pin-halo" cx="${p.x}" cy="${headCy}" r="${haloR}" stroke="${c.stroke}"/>
-      <path d="${pinPath}" fill="${c.stroke}" stroke="#ffffff" stroke-width="${1.8 * Math.sqrt(scale)}"/>
-      <circle cx="${p.x}" cy="${headCy}" r="${holeR}" fill="#ffffff"/>
+    <g class="pin-group" id="pin-${i}" data-idx="${i}">
+      <circle class="pin-halo" cx="${p.x}" cy="${headCy}" r="${haloR}" stroke="${c.stroke}" />
+      <path d="${pinPath}" fill="${c.stroke}" stroke="#fff" stroke-width="${1.8 * Math.sqrt(scale)}" />
+      <circle cx="${p.x}" cy="${headCy}" r="${holeR}" fill="#fff" />
     </g>
   `);
 });
 
 svgParts.push(`</svg>`);
-stage.innerHTML = svgParts.join('');
+stage.innerHTML = svgParts.join("");
+
+/* ============================================================
+   LABEL LAYOUT
+   ============================================================ */
 
 function layoutLabels() {
   if (window.innerWidth < 768) return;
-  const svgEl = stage.querySelector('svg');
+
+  const svgEl = stage.querySelector("svg");
+  if (!svgEl) return;
+
   const rect = svgEl.getBoundingClientRect();
-  if (rect.width === 0) { requestAnimationFrame(layoutLabels); return; }
+  if (rect.width === 0) {
+    requestAnimationFrame(layoutLabels);
+    return;
+  }
+
   const scaleX = rect.width / W;
   const scaleY = rect.height / totalH;
 
-  document.querySelectorAll('.stop-label').forEach(el => el.remove());
+  document.querySelectorAll(".stop-label").forEach(el => el.remove());
 
   pts.forEach((p, i) => {
     const m = milestones[i];
     const c = COLORS[m.color];
-    const scale = m.weight || 1.0;
+    const scale = m.weight || 1;
+    const div = document.createElement("div");
 
-    const div = document.createElement('div');
-    div.className = 'stop-label';
+    div.className = "stop-label" +
+      (m.major ? " major-event" : "") +
+      (m.semiMajor ? " semi-major" : "");
+
     div.id = `label-${i}`;
-    div.style.setProperty('--stop-color', c.stroke);
-    div.style.setProperty('--stop-title-color', c.title);
-    div.style.setProperty('--badge-font-size', `${11.5 + (scale - 1) * 3}px`);
-    div.style.setProperty('--date-font-size', `${9.5 + (scale - 1) * 2}px`);
-    div.style.zIndex = Math.round(scale * 10);
+    div.style.setProperty("--stop-color", c.stroke);
+    div.style.setProperty("--stop-title-color", c.title);
+    div.style.setProperty("--badge-font-size", `${11 + (scale - 1) * 3.5}px`);
+    div.style.setProperty("--date-font-size", `${9 + (scale - 1) * 2}px`);
+    div.style.zIndex = m.major ? 10000 : 100;
 
     const px = p.x * scaleX;
     const py = p.y * scaleY;
-    const pinHeadTop = 30 * scale * scaleY;
+    const safeX = Math.max(80, Math.min(rect.width - 80, px));
+
+    div.style.left = `${safeX}px`;
+
     const labelBelow = p.posInRow === 1;
 
-    div.style.left = `${px}px`;
     if (labelBelow) {
       div.style.top = `${py + 14}px`;
-      div.style.transform = 'translate(-50%, 0)';
+      div.style.transform = "translate(-50%, 0)";
     } else {
-      div.style.top = `${py - pinHeadTop - 10}px`;
-      div.style.transform = 'translate(-50%, -100%)';
+      div.style.top = `${Math.max(12, py - 30 * scale * scaleY - 10)}px`;
+      div.style.transform = "translate(-50%, -100%)";
     }
 
-    const panelSide = labelBelow ? 'below' : 'above';
-    const vPos = panelSide === 'below'
-      ? 'top: 100%; margin-top: 14px;'
-      : 'bottom: 100%; margin-bottom: 14px;';
+    const panelSide = labelBelow ? "below" : "above";
+    const vPos = panelSide === "below" ? "top: calc(100% + 14px); bottom: auto;" : "bottom: calc(100% + 14px); top: auto;";
 
     const third = W / 3;
     let hPos, arrowH;
+
     if (p.x < third) {
-      hPos = 'left: 0; transform: none;';
-      arrowH = 'left: 24px; transform: rotate(45deg);';
+      hPos = "left: 0; right: auto; transform: none;";
+      arrowH = "left: 24px; transform: rotate(45deg);";
     } else if (p.x > third * 2) {
-      hPos = 'right: 0; transform: none;';
-      arrowH = 'right: 24px; transform: rotate(45deg);';
+      hPos = "right: 0; left: auto; transform: none;";
+      arrowH = "right: 24px; transform: rotate(45deg);";
     } else {
-      hPos = 'left: 50%; transform: translateX(-50%);';
-      arrowH = 'left: 50%; transform: translateX(-50%) rotate(45deg);';
+      hPos = "left: 50%; right: auto; transform: translateX(-50%);";
+      arrowH = "left: 50%; transform: translateX(-50%) rotate(45deg);";
     }
 
-    const arrowV = panelSide === 'below'
-      ? 'top: -6px; border-left: 1px solid #e6e4db; border-top: 1px solid #e6e4db;'
-      : 'bottom: -6px; border-right: 1px solid #e6e4db; border-bottom: 1px solid #e6e4db;';
+    const arrowV = panelSide === "below"
+      ? "top: -6px; border-left: 1px solid #e6e4db; border-top: 1px solid #e6e4db;"
+      : "bottom: -6px; border-right: 1px solid #e6e4db; border-bottom: 1px solid #e6e4db;";
 
     div.innerHTML = `
       <div class="stop-badge">
@@ -360,16 +781,16 @@ function layoutLabels() {
         <p class="date">${m.date}</p>
         <p class="title">${m.title}</p>
         <p class="body">${m.body}</p>
+        ${m.link ? `<a class="detail-link" href="${m.link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Read Apple documentation ↗</a>` : ""}
         <div class="arrow" style="${arrowV} ${arrowH}"></div>
       </div>
     `;
 
-    // Support both mouse hover and touch/click toggles
-    div.addEventListener('mouseenter', () => setActive(i));
-    div.addEventListener('mouseleave', () => setActive(null));
-    div.addEventListener('click', (e) => {
+    div.addEventListener("mouseenter", () => setActive(i));
+    div.addEventListener("mouseleave", () => setActive(null));
+    div.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isActive = div.classList.contains('active');
+      const isActive = div.classList.contains("active");
       setActive(isActive ? null : i);
     });
 
@@ -377,35 +798,61 @@ function layoutLabels() {
   });
 }
 
+/* ============================================================
+   ACTIVE STATE & FILTERS
+   ============================================================ */
+
 function setActive(idx) {
-  document.querySelectorAll('.pin-group').forEach(g => {
-    const gi = parseInt(g.dataset.idx);
-    g.classList.toggle('active', idx !== null && gi === idx);
-    g.classList.toggle('dim', idx !== null && gi !== idx);
+  document.querySelectorAll(".pin-group").forEach(g => {
+    const gi = parseInt(g.dataset.idx, 10);
+    g.classList.toggle("active", idx !== null && gi === idx);
   });
-  document.querySelectorAll('.stop-label').forEach((el, gi) => {
-    el.classList.toggle('active', idx !== null && gi === idx);
-    el.classList.toggle('dim', idx !== null && gi !== idx);
+
+  document.querySelectorAll(".stop-label").forEach((el, gi) => {
+    el.classList.toggle("active", idx !== null && gi === idx);
   });
 }
 
-// Clear active state when clicking empty background
-document.addEventListener('click', () => setActive(null));
+function filterCategory(categoryName, btn) {
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+
+  const isAll = categoryName === "all";
+  const mobileCards = document.querySelectorAll(".mobile-card");
+
+  milestones.forEach((m, idx) => {
+    const pin = document.getElementById(`pin-${idx}`);
+    const label = document.getElementById(`label-${idx}`);
+    const mobileCard = mobileCards[idx];
+    const matches = isAll || m.category === categoryName;
+
+    if (pin) pin.classList.toggle("dim", !matches);
+    if (label) label.classList.toggle("dim", !matches);
+    if (mobileCard) {
+      mobileCard.style.opacity = matches ? "1" : ".25";
+      mobileCard.style.pointerEvents = matches ? "auto" : "none";
+    }
+  });
+}
+
+document.addEventListener("click", () => setActive(null));
 
 pts.forEach((p, i) => {
   const group = document.getElementById(`pin-${i}`);
   if (!group) return;
-  group.addEventListener('mouseenter', () => setActive(i));
-  group.addEventListener('mouseleave', () => setActive(null));
-  group.addEventListener('click', (e) => {
+
+  group.addEventListener("mouseenter", () => setActive(i));
+  group.addEventListener("mouseleave", () => setActive(null));
+  group.addEventListener("click", (e) => {
     e.stopPropagation();
-    const isActive = group.classList.contains('active');
+    const isActive = group.classList.contains("active");
     setActive(isActive ? null : i);
   });
 });
 
 layoutLabels();
-window.addEventListener('resize', layoutLabels);
+window.addEventListener("resize", layoutLabels);
+
 </script>
 </body>
 </html>
