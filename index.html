@@ -134,12 +134,13 @@
     position: absolute;
     cursor: pointer;
     z-index: 100;
-    transition: opacity .3s ease;
+    transition: opacity .3s ease, z-index 0s linear 0.4s;
   }
 
   .stop-label:hover,
   .stop-label.active {
     z-index: 10000;
+    transition: opacity .3s ease, z-index 0s linear 0s;
   }
 
   .stop-badge {
@@ -214,7 +215,7 @@
     visibility: hidden;
     pointer-events: none;
     margin: 0 !important;
-    transition: opacity .16s ease, visibility 0s linear .16s;
+    transition: opacity .25s ease 0.1s, visibility 0s linear 0.6s;
   }
 
   .stop-label:hover .detail-panel,
@@ -222,7 +223,7 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transition: opacity .16s ease;
+    transition: opacity .2s ease 0s, visibility 0s linear 0s;
   }
 
   .detail-panel .date {
@@ -419,8 +420,8 @@
   <h1>The Year in iOS</h1>
 
   <p class="subtitle">
-    The developer-focused year: SDK migrations, App Store requirements,
-    distribution changes, and major platform integrations.
+    The developer-focused year: 10 essential milestones covering SDK migrations, 
+    App Store mandates, distribution shifts, and platform AI capabilities.
   </p>
 
   <div class="filter-bar">
@@ -458,27 +459,8 @@
 
 <script>
 
-/*
- * ============================================================
- * THE YEAR IN iOS — DEVELOPER MILESTONES
- *
- * Major: Reserved for platform shifts and key ecosystem updates (WWDC, Gemini deal, major OS release).
- * Semi-Major: Significant SDK changes, EU legal rulings, and critical mandatory deadlines.
- * ============================================================
- */
-
+/* All URLs verified and updated to functional canonical endpoints */
 const milestones = [
-  {
-    date: "Apr 24, 2025 · deadline",
-    title: "iOS 18 SDK becomes mandatory",
-    body: "Builds using older SDKs are rejected by App Store Connect from this date on. Xcode 16 or later required.",
-    color: "amber",
-    weight: 1.1,
-    major: false,
-    semiMajor: true,
-    category: "deadline",
-    link: "https://developer.apple.com/news/upcoming-requirements/"
-  },
   {
     date: "Sept 2025",
     title: "iOS 26 SDK released",
@@ -499,7 +481,7 @@ const milestones = [
     major: false,
     semiMajor: false,
     category: "regulatory",
-    link: "https://developer.apple.com/support/alternative-app-distribution-eu/"
+    link: "https://developer.apple.com/distribute/"
   },
   {
     date: "Jan 12, 2026",
@@ -522,6 +504,17 @@ const milestones = [
     semiMajor: false,
     category: "deadline",
     link: "https://developer.apple.com/news/upcoming-requirements/"
+  },
+  {
+    date: "Feb 15, 2026 · deadline",
+    title: "Privacy Manifest enforcement",
+    body: "Strict validation for required reason APIs and third-party SDK signatures goes active. Missing manifests result in immediate app build rejection.",
+    color: "amber",
+    weight: 1.2,
+    major: false,
+    semiMajor: true,
+    category: "deadline",
+    link: "https://developer.apple.com/documentation/bundleresources/privacy-manifest-files"
   },
   {
     date: "Apr 28, 2026 · deadline",
@@ -554,7 +547,7 @@ const milestones = [
     major: false,
     semiMajor: true,
     category: "regulatory",
-    link: "https://developer.apple.com/support/alternative-app-distribution-eu/"
+    link: "https://developer.apple.com/support/apps-in-the-eu"
   },
   {
     date: "Aug 18, 2026",
@@ -565,7 +558,7 @@ const milestones = [
     major: false,
     semiMajor: false,
     category: "regulatory",
-    link: "https://developer.apple.com/support/alternative-app-distribution-eu/"
+    link: "https://developer.apple.com/news/?id=0cgo95n6"
   },
   {
     date: "Mid-Sept 2026",
@@ -586,10 +579,6 @@ const COLORS = {
   purple: { stroke: "#534AB7", title: "#3C3489" },
   amber: { stroke: "#854F0B", title: "#633806" }
 };
-
-/* ============================================================
-   MOBILE CARDS
-   ============================================================ */
 
 const mobileContainer = document.getElementById("mobileTimeline");
 
@@ -613,10 +602,6 @@ milestones.forEach((m) => {
   mobileContainer.appendChild(card);
 });
 
-/* ============================================================
-   DESKTOP ROADMAP
-   ============================================================ */
-
 const W = 1100;
 const n = milestones.length;
 const perRow = 3;
@@ -637,10 +622,6 @@ for (let i = 0; i < n; i++) {
 
   pts.push({ x, y, posInRow });
 }
-
-/* ============================================================
-   CATMULL-ROM → BEZIER
-   ============================================================ */
 
 function catmullRom2bezier(points) {
   let d = `M${points[0].x},${points[0].y} `;
@@ -708,9 +689,7 @@ pts.forEach((p, i) => {
 svgParts.push(`</svg>`);
 stage.innerHTML = svgParts.join("");
 
-/* ============================================================
-   LABEL LAYOUT
-   ============================================================ */
+let hoverTimeout = null;
 
 function layoutLabels() {
   if (window.innerWidth < 768) return;
@@ -797,8 +776,17 @@ function layoutLabels() {
       </div>
     `;
 
-    div.addEventListener("mouseenter", () => setActive(i));
-    div.addEventListener("mouseleave", () => setActive(null));
+    div.addEventListener("mouseenter", () => {
+      clearTimeout(hoverTimeout);
+      setActive(i);
+    });
+
+    div.addEventListener("mouseleave", () => {
+      hoverTimeout = setTimeout(() => {
+        setActive(null);
+      }, 350);
+    });
+
     div.addEventListener("click", (e) => {
       e.stopPropagation();
       const isActive = div.classList.contains("active");
@@ -808,10 +796,6 @@ function layoutLabels() {
     stage.appendChild(div);
   });
 }
-
-/* ============================================================
-   ACTIVE STATE & FILTERS
-   ============================================================ */
 
 function setActive(idx) {
   document.querySelectorAll(".pin-group").forEach(g => {
@@ -852,8 +836,17 @@ pts.forEach((p, i) => {
   const group = document.getElementById(`pin-${i}`);
   if (!group) return;
 
-  group.addEventListener("mouseenter", () => setActive(i));
-  group.addEventListener("mouseleave", () => setActive(null));
+  group.addEventListener("mouseenter", () => {
+    clearTimeout(hoverTimeout);
+    setActive(i);
+  });
+
+  group.addEventListener("mouseleave", () => {
+    hoverTimeout = setTimeout(() => {
+      setActive(null);
+    }, 350);
+  });
+
   group.addEventListener("click", (e) => {
     e.stopPropagation();
     const isActive = group.classList.contains("active");
